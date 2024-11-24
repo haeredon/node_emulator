@@ -31,3 +31,4 @@ target_sources(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})
 
+install(TARGETS ${PROJECT_NAME} FILE_SET HEADERS)
