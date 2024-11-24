@@ -19,8 +19,6 @@ target_sources(${PROJECT_NAME}
         IpAddress.cpp
         Config.cpp
         NodeFactory.cpp
-        RequesterConfig.cpp
-        ReceiverConfig.cpp
         Requester.cpp
         Receiver.cpp
         Peer.cpp
@@ -28,6 +26,7 @@ target_sources(${PROJECT_NAME}
         NodeFactory.h
         Hook.h
         IpAddress.h
+        Peer.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})

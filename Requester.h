@@ -2,13 +2,16 @@
 #define REQUESTER_H
 
 #include "Node.h"
-#include "RequesterConfig.h"
 
-class Requester : public Node<RequesterConfig> {
+class Requester : public Node {
         
+    private:
+
+        int timeBetweenRequests;
+
     public: 
 
-        Requester(RequesterConfig config);
+        Requester(std::string&& tag, std::vector<Peer>&& peers, int timeBetweenRequests);
 
         void start() override;
 

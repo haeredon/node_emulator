@@ -2,13 +2,16 @@
 #define RECEIVER_H
 
 #include "Node.h"
-#include "ReceiverConfig.h"
 
-class Receiver : public Node<ReceiverConfig> {
+class Receiver : public Node {
         
+    private:
+
+        int listeningPort;
+
     public: 
 
-        Receiver(ReceiverConfig config);
+        Receiver(std::string&& tag, std::vector<Peer>&& peers, int listeningPort);
 
         void start() override;
 

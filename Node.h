@@ -3,7 +3,7 @@
 
 #include "Hook.h"
 #include "IpAddress.h"
-
+#include "Peer.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -12,14 +12,26 @@
 #include <vector>
 #include <iostream>
 
-template<class CONFIG_T>
 class Node {
 
     protected:
 
-        CONFIG_T config;
-
         std::vector<Hook*> hooks;
+
+        std::string tag;
+
+        std::vector<Peer> peers;
+
+        const IpAddress& getNextRemoteAddress() {
+            double choice = (rand() / RAND_MAX);
+
+            for(const Peer& peer : peers) {
+                if(choice < peer.getAffinity()) {
+                    return peer.getAddress();
+                }
+            }
+            throw;
+        }
 
         int getSocket() {
             int socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -76,7 +88,9 @@ class Node {
         
     public:
 
-        Node(CONFIG_T&& config) : config(std::forward<CONFIG_T>(config)) { }
+        Node(std::string&& tag, std::vector<Peer>&& peers) : 
+            peers(std::forward<std::vector<Peer>>(peers)),
+            tag(std::forward<std::string>(tag)) { }
 
         virtual void start() = 0;
         

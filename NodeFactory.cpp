@@ -1,7 +1,7 @@
 #include "NodeFactory.h"
 #include "Peer.h"
-#include "ReceiverConfig.h"
-#include "RequesterConfig.h"
+#include "Requester.h"
+#include "Receiver.h"
 #include "Node.h"
 
 #include <unordered_map>
@@ -87,20 +87,18 @@ std::vector<Peer> createPeerMappings(std::string peerString) {
 
 
 
-RequesterConfig buildRequestConfig(std::unordered_map<std::string, std::string>& configs) {
+void validateRequestConfig(std::unordered_map<std::string, std::string>& configs) {
     std::string tag = configs.contains("tag") ? configs.at("tag") : "";
     uint16_t timeBetweenRequests  = configs.contains("timeBetweenRequests") ? stoi(configs.at("timeBetweenRequests")) : 0;
     std::string peers  = configs.contains("peers") ? configs.at("peers") : "";
 
-    if(tag.size() == 0 || timeBetweenRequests == 0) {
-        std::cout << "Invalid Receiver Configuration" << std::endl;
+    if(tag.size() == 0 || timeBetweenRequests == 0 || peers.size() == 0) {
+        std::cout << "Invalid Requester Configuration" << std::endl;
         throw;
     } 
-    
-    return RequesterConfig { tag, timeBetweenRequests, createPeerMappings(peers)};
 }
 
-ReceiverConfig buildReceiverConfig(std::unordered_map<std::string, std::string>& configs) {
+void validateReceiverConfig(std::unordered_map<std::string, std::string>& configs) {
     std::string tag = configs.contains("tag") ? configs.at("tag") : "";
     uint16_t listeningPort  = configs.contains("listeningPort") ? stoi(configs.at("listeningPort")) : 0;
     std::string peers  = configs.contains("peers") ? configs.at("peers") : "";
@@ -109,8 +107,6 @@ ReceiverConfig buildReceiverConfig(std::unordered_map<std::string, std::string>&
         std::cout << "Invalid Receiver Configuration" << std::endl;
         throw;
     } 
-    
-    return ReceiverConfig { tag, listeningPort, createPeerMappings(peers) };
 }
 
 /*************************** PUBLIC INTERFACE *************************************************/
@@ -118,20 +114,26 @@ ReceiverConfig buildReceiverConfig(std::unordered_map<std::string, std::string>&
 Node* NodeFactory::createNode(std::string configFile) {
     std::cout << "Executable: " << configFile << std::endl; 
 
-    std::unordered_map<std::string, std::string> configs = getConfigs(configFile);
+    std::unordered_map<std::string, std::string> config = getConfigs(configFile);
     const std::string nodeTypeKey = "NODE_TYPE";
 
-    if(configs.contains(nodeTypeKey)) {
-        std::string nodeType = configs.at(nodeTypeKey);
+    if(config.contains(nodeTypeKey)) {
+        std::string nodeType = config.at(nodeTypeKey);
         
         if(nodeType == "REQUESTER") {
-            RequesterConfig config = buildRequestConfig(configs);
-            // std::cout << "Running with config: \n" << config.toString() << std::endl;
-            return nullptr;
+            validateRequestConfig(config);            
+            return new Requester {
+                std::move(config.at("tag")),
+                createPeerMappings(config["peers"]),
+                stoi(config.at("timeBetweenRequests"))
+            };
         } else if(nodeType == "RECEIVER") {
-            ReceiverConfig config = buildReceiverConfig(configs);
-            // std::cout << "Running with config: \n" << config.toString() << std::endl;
-            return nullptr;
+            validateReceiverConfig(config);            
+            return new Requester {
+                std::move(config.at("tag")),
+                createPeerMappings(config["peers"]),
+                stoi(config.at("listeningPort"))
+            };
         } else {
             std::cout << "Invalid NODE_TYPE" << std::endl;
             throw;
@@ -140,8 +142,4 @@ Node* NodeFactory::createNode(std::string configFile) {
         std::cout << "NODE_TYPE not specified" << std::endl;
         throw;
     }
-}
-
-void NodeFactory::addHook(Hook* hook) {
-    this->hooks.push_back(hook);
 }

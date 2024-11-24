@@ -9,14 +9,10 @@
 
 class NodeFactory {
 
-    private:
-
-        std::vector<Hook*> hooks;
     
     public:
 
-        template<class TEST>
-        static Node* createNode(std::string configFile);
+        Node* createNode(std::string configFile);
 
 };
 

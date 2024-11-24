@@ -1,22 +1,19 @@
 #include "Receiver.h"
+#include "Peer.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-Receiver::Receiver(ReceiverConfig config) : Node(std::forward<ReceiverConfig>(config)) { }
+
+Receiver::Receiver(std::string&& tag, std::vector<Peer>&& peers, int timeBetweenRequests) : 
+    Node(std::forward<std::string>(tag), std::forward<std::vector<Peer>>(peers)), listeningPort(listeningPort) { }
 
 
 void Receiver::start() {  
     int socketDescriptor = getSocket();
 
-    const struct sockaddr_in addr = {
-        .sin_family = AF_INET,
-        .sin_port = htons(config.getListeningPort()),
-        .sin_addr = {
-            .s_addr = INADDR_ANY
-        }
-    };    
+    const struct sockaddr_in addr = getAddrSpec(INADDR_ANY, listeningPort);
 
     int ret = bind(socketDescriptor, (struct sockaddr*) &addr, sizeof(addr));
 
@@ -34,7 +31,7 @@ void Receiver::start() {
 
     while(true) {
         // Get data from client
-        std::cout << "Listening on port " << config.getListeningPort() << std::endl; 
+        std::cout << "Listening on port " << listeningPort << std::endl; 
         int clientSocket = accept(socketDescriptor, nullptr, nullptr);
 
         char buffer[1024] = { 0 };
@@ -42,9 +39,9 @@ void Receiver::start() {
         std::cout << "Message from client: " << buffer << std::endl;
         
         std::string returnMessage = "KAGEM;AMD";
-        if(config.hasPeers()) {
+        if(!peers.empty()) {
             // send request to next peer and get a response
-            IpAddress address = config.getNextRemoteAddress();
+            IpAddress address = getNextRemoteAddress();
             sendMessage(socketDescriptor, address, std::string { buffer, receiveSize });
             
             receiveSize = recv(socketDescriptor, buffer, sizeof(buffer), 0);

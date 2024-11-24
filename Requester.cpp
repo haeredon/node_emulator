@@ -1,18 +1,19 @@
 #include "Requester.h"
 
 
-Requester::Requester(RequesterConfig config) : Node(std::forward<RequesterConfig>(config)) { }
+Requester::Requester(std::string&& tag, std::vector<Peer>&& peers, int timeBetweenRequests) : 
+    Node(std::forward<std::string>(tag), std::forward<std::vector<Peer>>(peers)), timeBetweenRequests(timeBetweenRequests) { }
 
 
 void Requester::start() {  
     while(true) {        
         int socketDescriptor = getSocket();
 
-        IpAddress address = config.getNextRemoteAddress();
-        sendMessage(socketDescriptor, address, config.getTag().append(" calling.\n"));
+        IpAddress address = getNextRemoteAddress();
+        sendMessage(socketDescriptor, address, tag + " calling.\n");
 
         close(socketDescriptor);
 
-        sleep(config.getTimeBetweenRequests());
+        sleep(timeBetweenRequests);
     }    
 }
