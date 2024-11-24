@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "Hook.h"
+#include "Node.h"
 
 class NodeFactory {
 
@@ -14,9 +15,8 @@ class NodeFactory {
     
     public:
 
-        static void createNode(std::string configFile);
-
-        void addHook(Hook* hook);
+        template<class TEST>
+        static Node* createNode(std::string configFile);
 
 };
 

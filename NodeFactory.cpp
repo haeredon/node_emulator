@@ -1,4 +1,13 @@
 #include "NodeFactory.h"
+#include "Peer.h"
+#include "ReceiverConfig.h"
+#include "RequesterConfig.h"
+#include "Node.h"
+
+#include <unordered_map>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
 
 std::unordered_map<std::string, std::string> getConfigs(std::string filePath) {
     std::unordered_map<std::string, std::string> configs;
@@ -106,7 +115,7 @@ ReceiverConfig buildReceiverConfig(std::unordered_map<std::string, std::string>&
 
 /*************************** PUBLIC INTERFACE *************************************************/
 
-void NodeFactory::createNode(std::string configFile) {
+Node* NodeFactory::createNode(std::string configFile) {
     std::cout << "Executable: " << configFile << std::endl; 
 
     std::unordered_map<std::string, std::string> configs = getConfigs(configFile);
@@ -118,11 +127,11 @@ void NodeFactory::createNode(std::string configFile) {
         if(nodeType == "REQUESTER") {
             RequesterConfig config = buildRequestConfig(configs);
             // std::cout << "Running with config: \n" << config.toString() << std::endl;
-            startRequester(config);
+            return nullptr;
         } else if(nodeType == "RECEIVER") {
             ReceiverConfig config = buildReceiverConfig(configs);
             // std::cout << "Running with config: \n" << config.toString() << std::endl;
-            startReceiver(config);
+            return nullptr;
         } else {
             std::cout << "Invalid NODE_TYPE" << std::endl;
             throw;

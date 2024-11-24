@@ -11,12 +11,24 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_BUILD_TYPE Debug)
 
 
-# add the executable
-add_executable("${PROJECT_NAME}" 
-    main.cpp
+
+add_library(${PROJECT_NAME} SHARED)
+
+target_sources(${PROJECT_NAME} 
+    PUBLIC
+        IpAddress.cpp
+        Config.cpp
+        NodeFactory.cpp
+        RequesterConfig.cpp
+        ReceiverConfig.cpp
+        Requester.cpp
+        Receiver.cpp
+        Peer.cpp
+    PUBLIC FILE_SET HEADERS FILES 
+        NodeFactory.h
+        Hook.h
+        IpAddress.h
 )
 
-target_link_libraries("${PROJECT_NAME}" PUBLIC -lTracer)
-
-target_include_directories("${PROJECT_NAME}" PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})
 
