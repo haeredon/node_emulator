@@ -27,6 +27,7 @@ target_sources(${PROJECT_NAME}
         Hook.h
         IpAddress.h
         Peer.h
+        Node.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})
