@@ -11,6 +11,10 @@ double Peer::getAffinity() const {
     return affinity;
 }
 
+void Peer::setAffinity(double affinity) {
+    this->affinity = affinity;
+}
+
 std::string Peer::toString() const {
     std::string print = "Peer \n";
     print

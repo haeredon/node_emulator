@@ -22,8 +22,10 @@ class Node {
 
         std::vector<Peer> peers;
 
+        bool started;
+
         const IpAddress& getNextRemoteAddress() {
-            double choice = (rand() / RAND_MAX);
+            double choice = (((double) rand()) / (double) RAND_MAX);
 
             for(const Peer& peer : peers) {
                 if(choice < peer.getAffinity()) {
@@ -65,7 +67,7 @@ class Node {
             }
         }
 
-        void sendMessage(int socketDescriptor, IpAddress& address, std::string message) {
+        std::string sendMessage(int socketDescriptor, IpAddress& address, std::string message) {
             const struct sockaddr_in addr = getAddrSpec(address.getIp(), address.getPort());
             socketConnect(socketDescriptor, (struct sockaddr*) &addr, sizeof(addr));
 
@@ -75,15 +77,13 @@ class Node {
             // receiving data
             char buffer[1024] = { 0 };
             size_t receiveSize = recv(socketDescriptor, buffer, sizeof(buffer), 0);
-            std::cout << "Message from server: " << std::string { buffer, receiveSize } << std::endl;
-
-
-            std::cout << "Message from server length: " << std::to_string(receiveSize) << std::endl;
-
+            
             if(ret == -1) {
                 printf("Failed to send data to remote server: %d \n", errno);
                 throw;
             }
+
+            return std::string { buffer, receiveSize };
         }
         
     public:
@@ -96,6 +96,10 @@ class Node {
         
         void addHook(Hook* hook) {
             hooks.push_back(hook);
+        }
+
+        bool hasStarted() {
+            return this->started;
         }
 };
 

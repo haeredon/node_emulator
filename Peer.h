@@ -22,6 +22,8 @@ class Peer {
 
         double getAffinity() const;
 
+        void setAffinity(double affinity);
+
         std::string toString() const;
 
 };

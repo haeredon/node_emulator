@@ -82,6 +82,12 @@ std::vector<Peer> createPeerMappings(std::string peerString) {
         }
     );
 
+    double aggAffinity = 0;
+    for(auto& peer : peers) {
+        aggAffinity += peer.getAffinity();
+        peer.setAffinity(aggAffinity);
+    }
+
     return peers;
 }
 
@@ -129,7 +135,7 @@ Node* NodeFactory::createNode(std::string configFile) {
             };
         } else if(nodeType == "RECEIVER") {
             validateReceiverConfig(config);            
-            return new Requester {
+            return new Receiver {
                 std::move(config.at("tag")),
                 createPeerMappings(config["peers"]),
                 stoi(config.at("listeningPort"))
