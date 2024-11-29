@@ -71,12 +71,16 @@ class Node {
             const struct sockaddr_in addr = getAddrSpec(address.getIp(), address.getPort());
             socketConnect(socketDescriptor, (struct sockaddr*) &addr, sizeof(addr));
 
+            
             // sending data    
+            publish(HOOK_TYPE::NETWORK_POST_RECEIVE, message);
             int ret = send(socketDescriptor, message.data(), message.size(), 0);
             
             // receiving data
             char buffer[1024] = { 0 };
             size_t receiveSize = recv(socketDescriptor, buffer, sizeof(buffer), 0);
+            std::string receivedData { buffer, receiveSize };
+            publish(HOOK_TYPE::NETWORK_POST_RECEIVE, receivedData);
             
             if(ret == -1) {
                 printf("Failed to send data to remote server: %d \n", errno);
@@ -84,6 +88,12 @@ class Node {
             }
 
             return std::string { buffer, receiveSize };
+        }
+
+        void publish(HOOK_TYPE hookType, std::string& data) {
+            for(Hook* hook : hooks) {
+                hook->event(hookType, data);
+            }
         }
         
     public:

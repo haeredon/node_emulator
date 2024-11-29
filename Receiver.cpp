@@ -38,7 +38,9 @@ void Receiver::start() {
 
         char buffer[1024] = { 0 };
         uint64_t receiveSize = recv(clientSocket, buffer, sizeof(buffer), 0);
+        std::string receivedData { buffer, receiveSize };
         std::cout << "Message from client: " << buffer << std::endl;
+        publish(HOOK_TYPE::NETWORK_POST_RECEIVE, receivedData);
         
         std::string response = "";
         if(peers.empty()) {
